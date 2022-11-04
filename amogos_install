@@ -14,6 +14,7 @@ if [ -d "/sys/firmware/efi" ]; then
 	echo "This system can only be installable on MBR-BIOS."
 	exit 1
 fi
+pacman -Sy wget --noconfirm
 echo "starting install"
 lsblk && echo "What is your disk? EG: /dev/sda" && read disk
 echo "Installing bootloader on $disk"
