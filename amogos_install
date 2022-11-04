@@ -32,7 +32,7 @@ echo "done" && echo "Mounting $disk$part"
 mkdir -p $PREFIX/target
 mount $disk$part $PREFIX/target
 echo "done" && echo "Installing ISO"
-curl -o $PREFIX/target/amogos.iso $ISO_DOWNLOAD
+wget -O $PREFIX/target/amogos.iso $ISO_DOWNLOAD
 echo "done" && echo "Mounting ISO"
 mkdir -p $PREFIX/cdrom
 mount -t iso9660 -o loop $PREFIX/target/amogos.iso $PREFIX/cdrom
@@ -44,7 +44,7 @@ echo "done" && echo "Copying boot files"
 cp $PREFIX/cdrom/amogos/boot/vmlinuz $PREFIX/target/boot
 mv $PREFIX/target/boot/vmlinuz $PREFIX/target/boot/vmlinuz-5.10-generic
 echo "done" && echo "Patching initrd"
-curl -o $PREFIX/target/boot/initrd.img-5.10-generic $INITRD_PATCH
+wget -O $PREFIX/target/boot/initrd.img-5.10-generic $INITRD_PATCH
 echo "done" && echo "Generating fstab"
 fstabgen -U $PREFIX/target > $PREFIX/target/etc/fstab
 echo "done" && echo "CHROOT PART"
