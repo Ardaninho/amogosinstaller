@@ -37,11 +37,11 @@ echo "done" && echo "Mounting ISO"
 mkdir -p $PREFIX/cdrom
 mount -t iso9660 -o loop $PREFIX/target/amogos.iso $PREFIX/cdrom
 echo "done" && echo "Extracting SquashFS"
-unsquashfs -f -d $PREFIX/target $PREFIX/cdrom/amogos/01-core.sb
+unsquashfs -f -d $PREFIX/target $PREFIX/cdrom/linux/01-core.sb
 echo "done" && echo "Making psuedo filesystems dirs on target"
 mkdir -p $PREFIX/target/{dev,sys,proc,run,tmp,boot}
 echo "done" && echo "Copying boot files"
-cp $PREFIX/cdrom/amogos/boot/vmlinuz $PREFIX/target/boot
+cp $PREFIX/cdrom/linux/boot/vmlinuz $PREFIX/target/boot
 mv $PREFIX/target/boot/vmlinuz $PREFIX/target/boot/vmlinuz-5.10-generic
 echo "done" && echo "Patching initrd"
 wget -O $PREFIX/target/boot/initrd.img-5.10-generic $INITRD_PATCH
