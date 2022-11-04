@@ -1,0 +1,58 @@
+#!/bin/sh
+PREFIX=/tmp/amogos_ins
+mkdir -p $PREFIX
+ISO_DOWNLOAD="https://github.com/Amog-OS/AmogOS/releases/download/x64-1.4.1/AmogOS-1.4.1-x86_64.iso"
+INITRD_PATCH="https://github.com/Ardaninho/amogosinstaller/raw/main/patchedinitrd.img"
+echo "THIS SYSTEM WILL ONLY BE INSTALLABLE ON MBR-BIOS SYSTEMS!!!"
+if [ $(whoami) = "root" ]; then
+	echo "You are running as root."
+else
+	echo "Run this script as root."
+	exit 1
+fi
+if [ -d "/sys/firmware/efi" ]; then
+	echo "This system can only be installable on MBR-BIOS."
+	exit 1
+fi
+echo "starting install"
+lsblk && echo "What is your disk? EG: /dev/sda" && read disk
+echo "Installing bootloader on $disk"
+echo "Which partition will you install on? EG: 1, 2, 3" && read part
+echo "Installing on part $part"
+echo "ARE YOU SURE THAT YOU WANNA DO THIS? yes/no" && read areyousure
+case $areyousure in
+	"yes") echo "Okay.";;
+	"no") echo "Exiting";
+	exit 1;;
+esac
+echo "Formatting $disk$part"
+mkfs.ext4 $disk$part
+echo "done" && echo "Mounting $disk$part"
+mkdir $PREFIX/target
+mount $disk$part $PREFIX/target
+echo "done" && echo "Installing ISO"
+wget -O $PREFIX/target/amogos.iso $ISO_DOWNLOAD
+echo "done" && echo "Mounting ISO"
+mkdir $PREFIX/cdrom
+mount -t iso9660 $PREFIX/target/amogos.iso $PREFIX/cdrom
+echo "done" && echo "Extracting SquashFS"
+unsquashfs -d -f $PREFIX/target
+echo "done" && echo "Making psuedo filesystems dirs on target"
+mkdir -p $PREFIX/target/{dev,sys,proc,run,tmp,boot}
+echo "done" && echo "Copying boot files"
+cp $PREFIX/cdrom/amogos/boot/vmlinuz $PREFIX/target/boot
+mv $PREFIX/target/boot/vmlinuz $PREFIX/target/boot/vmlinuz-5.10-generic
+echo "done" && echo "Patching initrd"
+wget -O $PREFIX/target/boot/initrd.img-5.10-generic $INITRD_PATCH
+echo "done" && echo "Generating fstab"
+fstabgen -U $PREFIX/target > $PREFIX/target/etc/fstab
+echo "done" && echo "CHROOT PART"
+echo "Installing bootloader"
+artix-chroot $PREFIX/target -c "grub-install /dev/sda"
+echo "done" && echo "Configuring bootloader"
+artix-chroot $PREFIX/target -c "grub-mkconfig -o /boot/grub/grub.cfg"
+echo "done" && echo "Cleaning up"
+rm $PREFIX/target/amogos.iso
+echo "done" && echo "Installation of AmogOS is done! You can reboot your system!"
+echo "Exiting"
+exit 1
