@@ -49,9 +49,9 @@ echo "done" && echo "Generating fstab"
 fstabgen -U $PREFIX/target > $PREFIX/target/etc/fstab
 echo "done" && echo "CHROOT PART"
 echo "Installing bootloader"
-artix-chroot $PREFIX/target -c "grub-install /dev/sda"
+artix-chroot $PREFIX/target /bin/bash -c "/sbin/grub-install /dev/sda"
 echo "done" && echo "Configuring bootloader"
-artix-chroot $PREFIX/target -c "grub-mkconfig -o /boot/grub/grub.cfg"
+artix-chroot $PREFIX/target /bin/bash -c "/sbin/grub-mkconfig -o /boot/grub/grub.cfg"
 echo "done" && echo "Cleaning up"
 rm $PREFIX/target/amogos.iso
 echo "done" && echo "Installation of AmogOS is done! You can reboot your system!"
